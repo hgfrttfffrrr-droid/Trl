@@ -13,10 +13,13 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Unzip Source
+    - name: Unzip and Find Project Directory
       run: |
         unzip Gaprom-GitHub.zip
-        ls -la
+        # پیدا کردن پوشه‌ای که فایل gradlew داخلش هست و ذخیره مسیرش توی یک متغیر
+        PROJECT_DIR=$(dirname $(find . -name "gradlew" -type f | head -n 1))
+        echo "Project found in: $PROJECT_DIR"
+        echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -24,23 +27,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # این خط اضافه شد تا بره داخل پوشه اصلی پروژه
-    - name: Enter Project Directory
-      run: cd Gaprom-GitHub || cd $(ls -d */ | grep -v ".github" | head -n 1)
-
     - name: Grant execute permission for gradlew
-      run: |
-        cd Gaprom-GitHub || cd $(ls -d */ | grep -v ".github" | head -n 1)
-        chmod +x gradlew
+      working-directory: ${{ env.PROJECT_DIR }}
+      run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: |
-        cd Gaprom-GitHub || cd $(ls -d */ | grep -v ".github" | head -n 1)
-        ./gradlew assembleDebug
+      working-directory: ${{ env.PROJECT_DIR }}
+      run: ./gradlew assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: Gaprom-Debug-APK
-        # مسیر فایل apk رو هم اصلاح کردم که از داخل پوشه پیدا بشه
-        path: "**/app/build/outputs/apk/debug/app-debug.apk"
+        path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
