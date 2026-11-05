@@ -24,14 +24,23 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    # این خط اضافه شد تا بره داخل پوشه اصلی پروژه
+    - name: Enter Project Directory
+      run: cd Gaprom-GitHub || cd $(ls -d */ | grep -v ".github" | head -n 1)
+
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: |
+        cd Gaprom-GitHub || cd $(ls -d */ | grep -v ".github" | head -n 1)
+        chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: |
+        cd Gaprom-GitHub || cd $(ls -d */ | grep -v ".github" | head -n 1)
+        ./gradlew assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: Gaprom-Debug-APK
-        path: app/build/outputs/apk/debug/app-debug.apk
+        # مسیر فایل apk رو هم اصلاح کردم که از داخل پوشه پیدا بشه
+        path: "**/app/build/outputs/apk/debug/app-debug.apk"
