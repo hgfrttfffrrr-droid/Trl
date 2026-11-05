@@ -13,19 +13,19 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Unzip and Prepare Files
-      run: |
-        unzip Gaprom-GitHub.zip
-        # ساخت پوشه‌های لازم
-        mkdir -p Gaprom-GitHub/gradle/wrapper
-        # ساخت فایل تنظیمات با نسخه ۸.۰
-        echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip" > Gaprom-GitHub/gradle/wrapper/gradle-wrapper.properties
+    - name: Unzip Source
+      run: unzip Gaprom-GitHub.zip
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
+
+    - name: Setup Gradle (Version 8.0)
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: 8.0
 
     - name: Grant execute permission for gradlew
       run: |
@@ -35,7 +35,7 @@ jobs:
     - name: Build Debug APK
       run: |
         cd Gaprom-GitHub
-        ./gradlew assembleDebug
+        gradle assembleDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
