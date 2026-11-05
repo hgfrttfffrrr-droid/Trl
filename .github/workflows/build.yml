@@ -13,13 +13,13 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Unzip Source
+    - name: Unzip and Prepare Files
       run: |
         unzip Gaprom-GitHub.zip
-        # رفتن به داخل پوشه‌ای که باز شد
-        cd Gaprom-GitHub
-        # دانلود فایل‌های لازم برای بیلد (چون داخل زیپ نبودن)
-        gradle wrapper
+        # تغییر نسخه Gradle به ۸.۰ برای سازگاری با پروژه
+        echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip" > Gaprom-GitHub/gradle/wrapper/gradle-wrapper.properties
+        # اگر پوشه gradle وجود نداشت، بسازیم
+        mkdir -p Gaprom-GitHub/gradle/wrapper
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -30,7 +30,8 @@ jobs:
     - name: Grant execute permission for gradlew
       run: |
         cd Gaprom-GitHub
-        chmod +x gradlew
+        # فایل‌های لازم برای بیلد رو دانلود می‌کنیم
+        gradle wrapper
 
     - name: Build Debug APK
       run: |
